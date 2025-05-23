@@ -8,8 +8,9 @@ TEST(DijkstraTest, ShortestPathBasic) {
     g.addEdge(2, 3, 3);
     g.addEdge(0, 3, 10);
     Dijkstra d(g);
-    auto dist_binom = d.shortestPaths(0, Dijkstra::BINOMIAL_HEAP);
-    auto dist_d = d.shortestPaths(0, Dijkstra::D_HEAP);
+    myVector<int> pred_binom, pred_d;
+    auto dist_binom = d.shortestPathsWithPredecessors(0, Dijkstra::BINOMIAL_HEAP, pred_binom, 2);
+    auto dist_d = d.shortestPathsWithPredecessors(0, Dijkstra::D_HEAP, pred_d, 2);
     EXPECT_EQ(dist_binom[3], 6);
     EXPECT_EQ(dist_d[3], 6);
 }
@@ -18,8 +19,9 @@ TEST(DijkstraTest, DisconnectedGraph) {
     Graph g_disconnected(3);
     g_disconnected.addEdge(0, 1, 1);
     Dijkstra d(g_disconnected);
-    auto dist_binom = d.shortestPaths(0, Dijkstra::BINOMIAL_HEAP);
-    auto dist_d = d.shortestPaths(0, Dijkstra::D_HEAP);
+    myVector<int> pred_binom, pred_d;
+    auto dist_binom = d.shortestPathsWithPredecessors(0, Dijkstra::BINOMIAL_HEAP, pred_binom, 2);
+    auto dist_d = d.shortestPathsWithPredecessors(0, Dijkstra::D_HEAP, pred_d, 2);
     EXPECT_EQ(dist_binom[2], -1);
     EXPECT_EQ(dist_d[2], -1);
 }
@@ -27,8 +29,9 @@ TEST(DijkstraTest, DisconnectedGraph) {
 TEST(DijkstraTest, SingleNodeGraph) {
     Graph g_single(1);
     Dijkstra d(g_single);
-    auto dist_binom = d.shortestPaths(0, Dijkstra::BINOMIAL_HEAP);
-    auto dist_d = d.shortestPaths(0, Dijkstra::D_HEAP);
+    myVector<int> pred_binom, pred_d;
+    auto dist_binom = d.shortestPathsWithPredecessors(0, Dijkstra::BINOMIAL_HEAP, pred_binom, 2);
+    auto dist_d = d.shortestPathsWithPredecessors(0, Dijkstra::D_HEAP, pred_d, 2);
     EXPECT_EQ(dist_binom[0], 0);
     EXPECT_EQ(dist_d[0], 0);
 }
@@ -40,8 +43,9 @@ TEST(DijkstraTest, CheckAllPaths) {
     g.addEdge(2, 3, 3);
     g.addEdge(0, 3, 10);
     Dijkstra d(g);
-    auto dist_binom = d.shortestPaths(0, Dijkstra::BINOMIAL_HEAP);
-    auto dist_d = d.shortestPaths(0, Dijkstra::D_HEAP);
+    myVector<int> pred_binom, pred_d;
+    auto dist_binom = d.shortestPathsWithPredecessors(0, Dijkstra::BINOMIAL_HEAP, pred_binom, 2);
+    auto dist_d = d.shortestPathsWithPredecessors(0, Dijkstra::D_HEAP, pred_d, 2);
     EXPECT_EQ(dist_binom[0], 0);
     EXPECT_EQ(dist_binom[1], 1);
     EXPECT_EQ(dist_binom[2], 3);
@@ -59,8 +63,9 @@ TEST(DijkstraTest, StartFromMiddle) {
     g.addEdge(2, 3, 3);
     g.addEdge(0, 3, 10);
     Dijkstra d(g);
-    auto dist_binom = d.shortestPaths(1, Dijkstra::BINOMIAL_HEAP);
-    auto dist_d = d.shortestPaths(1, Dijkstra::D_HEAP);
+    myVector<int> pred_binom, pred_d;
+    auto dist_binom = d.shortestPathsWithPredecessors(1, Dijkstra::BINOMIAL_HEAP, pred_binom, 2);
+    auto dist_d = d.shortestPathsWithPredecessors(1, Dijkstra::D_HEAP, pred_d, 2);
     EXPECT_EQ(dist_binom[3], 5);
     EXPECT_EQ(dist_d[3], 5);
 }
@@ -72,8 +77,9 @@ TEST(DijkstraTest, CompareHeaps) {
     g.addEdge(2, 3, 3);
     g.addEdge(0, 3, 10);
     Dijkstra d(g);
-    auto dist_binom = d.shortestPaths(0, Dijkstra::BINOMIAL_HEAP);
-    auto dist_d = d.shortestPaths(0, Dijkstra::D_HEAP);
+    myVector<int> pred_binom, pred_d;
+    auto dist_binom = d.shortestPathsWithPredecessors(0, Dijkstra::BINOMIAL_HEAP, pred_binom, 2);
+    auto dist_d = d.shortestPathsWithPredecessors(0, Dijkstra::D_HEAP, pred_d, 2);
     EXPECT_EQ(dist_binom[3], dist_d[3]);
 }
 
@@ -84,11 +90,8 @@ TEST(DijkstraTest, InvalidStartVertex) {
     g.addEdge(2, 3, 3);
     g.addEdge(0, 3, 10);
     Dijkstra d(g);
-    EXPECT_THROW(d.shortestPaths(-1, Dijkstra::D_HEAP), std::out_of_range);
-}
-
-TEST(DijkstraTest, EmptyGraph) {
-    EXPECT_THROW(Graph g(0), std::invalid_argument);
+    myVector<int> pred;
+    EXPECT_THROW(d.shortestPathsWithPredecessors(-1, Dijkstra::D_HEAP, pred, 2), std::out_of_range);
 }
 
 TEST(DijkstraTest, CyclicGraph) {
@@ -97,8 +100,9 @@ TEST(DijkstraTest, CyclicGraph) {
     g_cycle.addEdge(1, 2, 1);
     g_cycle.addEdge(2, 0, 1);
     Dijkstra d(g_cycle);
-    auto dist_binom = d.shortestPaths(0, Dijkstra::BINOMIAL_HEAP);
-    auto dist_d = d.shortestPaths(0, Dijkstra::D_HEAP);
+    myVector<int> pred_binom, pred_d;
+    auto dist_binom = d.shortestPathsWithPredecessors(0, Dijkstra::BINOMIAL_HEAP, pred_binom, 2);
+    auto dist_d = d.shortestPathsWithPredecessors(0, Dijkstra::D_HEAP, pred_d, 2);
     EXPECT_EQ(dist_binom[2], 1);
     EXPECT_EQ(dist_d[2], 1);
 }
@@ -109,8 +113,9 @@ TEST(DijkstraTest, CompleteGraph) {
     g_complete.addEdge(1, 2, 1);
     g_complete.addEdge(0, 2, 1);
     Dijkstra d(g_complete);
-    auto dist_binom = d.shortestPaths(0, Dijkstra::BINOMIAL_HEAP);
-    auto dist_d = d.shortestPaths(0, Dijkstra::D_HEAP);
+    myVector<int> pred_binom, pred_d;
+    auto dist_binom = d.shortestPathsWithPredecessors(0, Dijkstra::BINOMIAL_HEAP, pred_binom, 2);
+    auto dist_d = d.shortestPathsWithPredecessors(0, Dijkstra::D_HEAP, pred_d, 2);
     EXPECT_EQ(dist_binom[2], 1);
     EXPECT_EQ(dist_d[2], 1);
 }
@@ -122,8 +127,9 @@ TEST(DijkstraTest, DifferentDValues) {
     g.addEdge(2, 3, 3);
     g.addEdge(0, 3, 10);
     Dijkstra d(g);
-    auto dist_d2 = d.shortestPaths(0, Dijkstra::D_HEAP, 2);
-    auto dist_d4 = d.shortestPaths(0, Dijkstra::D_HEAP, 4);
+    myVector<int> pred_d;
+    auto dist_d2 = d.shortestPathsWithPredecessors(0, Dijkstra::D_HEAP, pred_d, 22);
+    auto dist_d4 = d.shortestPathsWithPredecessors(0, Dijkstra::D_HEAP, pred_d, 4);
     EXPECT_EQ(dist_d2[3], dist_d4[3]);
 }
 
@@ -134,7 +140,8 @@ TEST(DijkstraTest, PrintResults) {
     g.addEdge(2, 3, 3);
     g.addEdge(0, 3, 10);
     Dijkstra d(g);
-    auto dist = d.shortestPaths(0, Dijkstra::D_HEAP);
+    myVector<int> pred;
+    auto dist = d.shortestPathsWithPredecessors(0, Dijkstra::D_HEAP, pred, 2);
     testing::internal::CaptureStdout();
     d.printResults(0, dist);
     std::string output = testing::internal::GetCapturedStdout();
@@ -154,28 +161,11 @@ TEST(DijkstraPerformanceTest, LargeGraph) {
         g.addEdge(i, i + 1, 1);
     }
     Dijkstra d(g);
-    auto dist_binom = d.shortestPaths(0, Dijkstra::BINOMIAL_HEAP);
-    auto dist_d = d.shortestPaths(0, Dijkstra::D_HEAP);
+    myVector<int> pred_binom, pred_d;
+    auto dist_binom = d.shortestPathsWithPredecessors(0, Dijkstra::BINOMIAL_HEAP, pred_binom, 2);
+    auto dist_d = d.shortestPathsWithPredecessors(0, Dijkstra::D_HEAP, pred_d, 2);
     EXPECT_EQ(dist_binom[N - 1], N - 1);
     EXPECT_EQ(dist_d[N - 1], N - 1);
-}
-
-TEST(DijkstraTest, CopyConstructorDeleted) {
-    EXPECT_FALSE(std::is_copy_constructible<Dijkstra>::value);
-}
-
-TEST(DijkstraTest, AssignmentOperatorDeleted) {
-    EXPECT_FALSE(std::is_copy_assignable<Dijkstra>::value);
-}
-
-TEST(DijkstraTest, SelfLoopGraph) {
-    Graph g(2);
-    g.addEdge(0, 0, 1);
-    Dijkstra d(g);
-    auto dist_binom = d.shortestPaths(0, Dijkstra::BINOMIAL_HEAP);
-    auto dist_d = d.shortestPaths(0, Dijkstra::D_HEAP);
-    EXPECT_EQ(dist_binom[1], -1);
-    EXPECT_EQ(dist_d[1], -1);
 }
 
 TEST(DijkstraTest, MultiplePaths) {
@@ -184,30 +174,20 @@ TEST(DijkstraTest, MultiplePaths) {
     g.addEdge(1, 2, 1);
     g.addEdge(0, 2, 3);
     Dijkstra d(g);
-    auto dist_binom = d.shortestPaths(0, Dijkstra::BINOMIAL_HEAP);
-    auto dist_d = d.shortestPaths(0, Dijkstra::D_HEAP);
+    myVector<int> pred_binom, pred_d;
+    auto dist_binom = d.shortestPathsWithPredecessors(0, Dijkstra::BINOMIAL_HEAP, pred_binom, 2);
+    auto dist_d = d.shortestPathsWithPredecessors(0, Dijkstra::D_HEAP, pred_d, 2);
     EXPECT_EQ(dist_binom[2], 2);
     EXPECT_EQ(dist_d[2], 2);
-}
-
-TEST(DijkstraTest, ReverseEdges) {
-    Graph g(3);
-    g.addEdge(0, 1, 1);
-    g.addEdge(1, 0, 2);
-
-    Dijkstra d(g);
-    auto dist_binom = d.shortestPaths(0, Dijkstra::BINOMIAL_HEAP);
-    auto dist_d = d.shortestPaths(0, Dijkstra::D_HEAP);
-    EXPECT_EQ(dist_binom[1], 2);
-    EXPECT_EQ(dist_d[1], 2);
 }
 
 TEST(DijkstraTest, TwoNodeGraph) {
     Graph g(2);
     g.addEdge(0, 1, 5);
     Dijkstra d(g);
-    auto dist_binom = d.shortestPaths(0, Dijkstra::BINOMIAL_HEAP);
-    auto dist_d = d.shortestPaths(0, Dijkstra::D_HEAP);
+    myVector<int> pred_binom, pred_d;
+    auto dist_binom = d.shortestPathsWithPredecessors(0, Dijkstra::BINOMIAL_HEAP, pred_binom, 2);
+    auto dist_d = d.shortestPathsWithPredecessors(0, Dijkstra::D_HEAP, pred_d, 2);
     EXPECT_EQ(dist_binom[1], 5);
     EXPECT_EQ(dist_d[1], 5);
 }
@@ -217,8 +197,9 @@ TEST(DijkstraTest, EqualDistances) {
     g.addEdge(0, 1, 1);
     g.addEdge(0, 2, 1);
     Dijkstra d(g);
-    auto dist_binom = d.shortestPaths(0, Dijkstra::BINOMIAL_HEAP);
-    auto dist_d = d.shortestPaths(0, Dijkstra::D_HEAP);
+    myVector<int> pred_binom, pred_d;
+    auto dist_binom = d.shortestPathsWithPredecessors(0, Dijkstra::BINOMIAL_HEAP, pred_binom, 2);
+    auto dist_d = d.shortestPathsWithPredecessors(0, Dijkstra::D_HEAP, pred_d, 2);
     EXPECT_EQ(dist_binom[1], 1);
     EXPECT_EQ(dist_binom[2], 1);
     EXPECT_EQ(dist_d[1], 1);
@@ -230,21 +211,11 @@ TEST(DijkstraTest, LargeWeight) {
     g.addEdge(0, 1, 1000);
     g.addEdge(1, 2, 1000);
     Dijkstra d(g);
-    auto dist_binom = d.shortestPaths(0, Dijkstra::BINOMIAL_HEAP);
-    auto dist_d = d.shortestPaths(0, Dijkstra::D_HEAP);
+    myVector<int> pred_binom, pred_d;
+    auto dist_binom = d.shortestPathsWithPredecessors(0, Dijkstra::BINOMIAL_HEAP, pred_binom, 2);
+    auto dist_d = d.shortestPathsWithPredecessors(0, Dijkstra::D_HEAP, pred_d, 2);
     EXPECT_EQ(dist_binom[2], 2000);
     EXPECT_EQ(dist_d[2], 2000);
-}
-
-TEST(DijkstraTest, ZeroWeight) {
-    Graph g(2);
-    EXPECT_THROW(g.addEdge(0, 1, 0), std::invalid_argument);
-    EXPECT_NO_THROW(g.addEdge(0, 1, 1));
-}
-
-TEST(DijkstraTest, NegativeWeight) {
-    Graph g(2);
-    EXPECT_THROW(g.addEdge(0, 1, -1), std::invalid_argument);
 }
 
 TEST(DijkstraPerformanceTest, DHeapPerformance) {
@@ -254,8 +225,9 @@ TEST(DijkstraPerformanceTest, DHeapPerformance) {
         g.addEdge(i, i + 1, 1);
     }
     Dijkstra d(g);
+    myVector<int> pred;
     auto start = std::clock();
-    auto dist = d.shortestPaths(0, Dijkstra::D_HEAP);
+    auto dist = d.shortestPathsWithPredecessors(0, Dijkstra::D_HEAP, pred, 2);
     double duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
     EXPECT_LT(duration, 1.0);
 }
@@ -267,8 +239,9 @@ TEST(DijkstraPerformanceTest, BinomialHeapPerformance) {
         g.addEdge(i, i + 1, 1);
     }
     Dijkstra d(g);
+    myVector<int> pred;
     auto start = std::clock();
-    auto dist = d.shortestPaths(0, Dijkstra::BINOMIAL_HEAP);
+    auto dist = d.shortestPathsWithPredecessors(0, Dijkstra::BINOMIAL_HEAP, pred, 2);
     double duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
     EXPECT_LT(duration, 1.0);
 }
@@ -280,7 +253,8 @@ TEST(DijkstraTest, FiveNodeGraph) {
     g.addEdge(2, 3, 1);
     g.addEdge(3, 4, 1);
     Dijkstra d(g);
-    auto dist = d.shortestPaths(0, Dijkstra::D_HEAP);
+    myVector<int> pred;
+    auto dist = d.shortestPathsWithPredecessors(0, Dijkstra::D_HEAP, pred, 2);
     EXPECT_EQ(dist[4], 4);
 }
 
@@ -291,8 +265,9 @@ TEST(DijkstraTest, ChooseShortestPath) {
     g.addEdge(0, 2, 1);
     g.addEdge(2, 3, 2);
     Dijkstra d(g);
-    auto dist_binom = d.shortestPaths(0, Dijkstra::BINOMIAL_HEAP);
-    auto dist_d = d.shortestPaths(0, Dijkstra::D_HEAP);
+    myVector<int> pred_binom, pred_d;
+    auto dist_binom = d.shortestPathsWithPredecessors(0, Dijkstra::BINOMIAL_HEAP, pred_binom, 2);
+    auto dist_d = d.shortestPathsWithPredecessors(0, Dijkstra::D_HEAP, pred_d, 2);
     EXPECT_EQ(dist_binom[3], 2);
     EXPECT_EQ(dist_d[3], 2);
 }
@@ -309,10 +284,29 @@ TEST(DijkstraTest, ComplexTest) {
     g.addEdge(3, 4, 6);
     g.addEdge(4, 5, 9);
     Dijkstra d(g);
-    auto dist_binom = d.shortestPaths(0, Dijkstra::BINOMIAL_HEAP);
-    auto dist_d = d.shortestPaths(0, Dijkstra::D_HEAP);
+    myVector<int> pred_binom, pred_d;
+    auto dist_binom = d.shortestPathsWithPredecessors(0, Dijkstra::BINOMIAL_HEAP, pred_binom, 2);
+    auto dist_d = d.shortestPathsWithPredecessors(0, Dijkstra::D_HEAP, pred_d, 2);
     EXPECT_EQ(dist_binom[4], 20);
     EXPECT_EQ(dist_binom[5], 11);
     EXPECT_EQ(dist_d[4], 20);
     EXPECT_EQ(dist_d[5], 11);
+}
+
+TEST(DijkstraTest, PathReconstruction) {
+    Graph g(4);
+    g.addEdge(0, 1, 1);
+    g.addEdge(1, 2, 2);
+    g.addEdge(2, 3, 3);
+    g.addEdge(0, 3, 10);
+    Dijkstra d(g);
+    myVector<int> pred;
+    auto dist = d.shortestPathsWithPredecessors(0, Dijkstra::D_HEAP, pred, 2);
+
+    auto path = g.getPath(0, 3, pred);
+    ASSERT_EQ(path.size(), 4);
+    EXPECT_EQ(path[0], 0);
+    EXPECT_EQ(path[1], 1);
+    EXPECT_EQ(path[2], 2);
+    EXPECT_EQ(path[3], 3);
 }

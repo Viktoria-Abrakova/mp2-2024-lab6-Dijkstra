@@ -30,14 +30,14 @@ public:
     Dijkstra(const Dijkstra&) = delete;
     Dijkstra& operator=(const Dijkstra&) = delete;
 
-    myVector<int> shortestPaths(int start, HeapType heapType, int d = 2);
+    myVector<int> shortestPathsWithPredecessors(int start, HeapType heapType, myVector<int>& predecessors, int d);
     void printResults(int start, const myVector<int>& dist) const;
 
 private:
     const Graph& graph;
 
     template <typename Heap>
-    void processQueue(Heap& pq, myVector<int>& dist, myVector<bool>& visited) {
+    void processQueueWithPredecessors(Heap& pq, myVector<int>& dist, myVector<bool>& visited, myVector<int>& predecessors) {
         while (!pq.empty()) {
             HeapNode current = pq.top();
             pq.pop();
@@ -51,6 +51,7 @@ private:
                 if (weight != -1 && !visited[v]) {
                     if (dist[v] == -1 || dist[u] + weight < dist[v]) {
                         dist[v] = dist[u] + weight;
+                        predecessors[v] = u;
                         pq.push({ v, dist[v] });
                     }
                 }

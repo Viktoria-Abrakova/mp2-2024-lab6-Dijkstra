@@ -14,10 +14,14 @@ void Graph::addEdge(size_t u, size_t v, int weight) {
     if (weight <= 0) {
         throw std::invalid_argument("Edge weight must be positive");
     }
-    if (u < numVertices && v < numVertices) {
-        adjacencyMatrix[u][v] = weight;
-        adjacencyMatrix[v][u] = weight;
+    if (u < 0 || v < 0 || u >= numVertices || v >= numVertices) {
+        throw std::out_of_range("Vertex index out of range");
     }
+    if (adjacencyMatrix[u][v] != -1) {
+        throw std::logic_error("Edge already exists. Multiple edges are not supported.");
+    }
+    adjacencyMatrix[u][v] = weight;
+    adjacencyMatrix[v][u] = weight; 
 }
 
 bool Graph::isConnected() const {
@@ -52,4 +56,32 @@ void Graph::printGraph() const {
         }
         std::cout << "\n";
     }
+}
+
+int Graph::getEdgeWeight(size_t u, size_t v) const {
+    if (u < 0 || v < 0 || u >= numVertices || v >= numVertices) {
+        throw std::out_of_range("Vertex index out of range");
+    }
+    return adjacencyMatrix[u][v];
+}
+
+myVector<int> Graph::getPath(int start, int end, const myVector<int>& predecessors) const {
+    myVector<int> path;
+    Stack<int> tempPath;
+
+    for (int at = end; at != -1; at = predecessors[at]) {
+        tempPath.push(at);
+        if (at == start) break; 
+    }
+
+    if (tempPath.top() != start) {
+        return {}; 
+    }
+
+    while (!tempPath.empty()) {
+        path.push_back(tempPath.top());
+        tempPath.pop();
+    }
+
+    return path;
 }

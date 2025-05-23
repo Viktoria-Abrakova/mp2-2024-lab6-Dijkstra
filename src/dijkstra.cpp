@@ -1,8 +1,9 @@
-#include "dijkstra.h"
+ï»¿#include "dijkstra.h"
 #include <iostream>
 
-myVector<int> Dijkstra::shortestPaths(int start, HeapType heapType, int d) {
+myVector<int> Dijkstra::shortestPathsWithPredecessors(int start, HeapType heapType, myVector<int>& predecessors, int d) {
     const int numVertices = static_cast<int>(graph.getNumVertices());
+    predecessors.resize(numVertices, -1);
 
     if (start < 0 || start >= numVertices) {
         throw std::out_of_range("Start vertex out of range");
@@ -16,12 +17,12 @@ myVector<int> Dijkstra::shortestPaths(int start, HeapType heapType, int d) {
     if (heapType == D_HEAP) {
         DHeap<HeapNode> pq(d);
         pq.push({ start, 0 });
-        processQueue(pq, dist, visited);
+        processQueueWithPredecessors(pq, dist, visited, predecessors);
     }
     else {
-        BinomialHeap<HeapNode> pq;  
+        BinomialHeap<HeapNode> pq;
         pq.push({ start, 0 });
-        processQueue(pq, dist, visited);
+        processQueueWithPredecessors(pq, dist, visited, predecessors);
     }
 
     for (int i = 0; i < numVertices; ++i) {
@@ -34,19 +35,19 @@ myVector<int> Dijkstra::shortestPaths(int start, HeapType heapType, int d) {
 }
 
 void Dijkstra::printResults(int start, const myVector<int>& dist) const {
-    std::cout << "Êðàò÷àéøèå ïóòè îò âåðøèíû " << start << ":\n";
+    std::cout << "ÐšÑ€Ð°Ñ‚Ñ‡Ð°Ð¹ÑˆÐ¸Ðµ Ð¿ÑƒÑ‚Ð¸ Ð¾Ñ‚ Ð²ÐµÑ€ÑˆÐ¸Ð½Ñ‹ " << start << ":\n";
     for (int i = 0; i < dist.size(); ++i) {
         if (dist[i] == -1) {
-            std::cout << "  äî " << i << ": íåäîñòèæèìà\n";
+            std::cout << "  Ð´Ð¾ " << i << ": Ð½ÐµÐ´Ð¾ÑÑ‚Ð¸Ð¶Ð¸Ð¼Ð°\n";
         }
         else {
-            std::cout << "  äî " << i << ": " << dist[i] << "\n";
+            std::cout << "  Ð´Ð¾ " << i << ": " << dist[i] << "\n";
         }
     }
 }
 
-template void Dijkstra::processQueue<DHeap<HeapNode>>(
-    DHeap<HeapNode>&, myVector<int>&, myVector<bool>&);
+template void Dijkstra::processQueueWithPredecessors<DHeap<HeapNode>>(
+    DHeap<HeapNode>&, myVector<int>&, myVector<bool>&, myVector<int>&);
 
-template void Dijkstra::processQueue<BinomialHeap<HeapNode>>(  
-    BinomialHeap<HeapNode>&, myVector<int>&, myVector<bool>&);
+template void Dijkstra::processQueueWithPredecessors<BinomialHeap<HeapNode>>(
+    BinomialHeap<HeapNode>&, myVector<int>&, myVector<bool>&, myVector<int>&);

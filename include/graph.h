@@ -14,5 +14,7 @@ public:
     void printGraph() const;
 
     size_t getNumVertices() const { return numVertices; }
+    int getEdgeWeight(size_t u, size_t v) const;
     const myVector<myVector<int>>& getAdjacencyMatrix() const { return adjacencyMatrix; }
+    myVector<int> getPath(int start, int end, const myVector<int>& predecessors) const;
 };

@@ -13,7 +13,8 @@ void printMenu() {
     cout << "5. Найти пути (Биномиальная куча)" << endl;
     cout << "6. Показать путь до вершины" << endl;
     cout << "7. Вывести граф" << endl;
-    cout << "8. Выход" << endl;
+    cout << "8. Проверить вес ребра" << endl; 
+    cout << "9. Выход" << endl;
     cout << "Выберите действие: ";
 }
 
@@ -48,24 +49,55 @@ void createManualGraph(Graph& graph) {
         }
         graph.addEdge(u, v, w);
     }
+    cout << "\nГраф успешно создан!\n";
 }
 
 void createCompleteGraph(Graph& graph) {
-    int vertices;
-    cout << "Количество вершин: ";
-    cin >> vertices;
+    size_t vertices;
+    int percent;
 
-    if (vertices <= 0) {
-        cout << "Количество вершин должно быть положительным!" << endl;
-        return;
+    while (true) {
+        cout << "Введите количество вершин графа (>= 2): ";
+        cin >> vertices;
+
+        if (vertices >= 2) break;
+        cout << "Ошибка: количество вершин должно быть не менее 2!" << endl;
+    }
+
+    while (true) {
+        cout << "Введите процент заполненности графа (0-100): ";
+        cin >> percent;
+
+        if (percent >= 0 && percent <= 100) break;
+        cout << "Ошибка: процент должен быть в диапазоне от 0 до 100!" << endl;
     }
 
     graph = Graph(vertices);
-    for (int i = 0; i < vertices; ++i) {
-        for (int j = i + 1; j < vertices; ++j) {
-            graph.addEdge(i, j, i + j + 1); 
+    int weight = 1;
+
+    for (size_t i = 1; i < vertices; ++i) {
+        graph.addEdge(i - 1, i, weight++);
+        cout << "Добавлено ребро: " << i - 1 << " - " << i << " (вес: " << weight - 1 << ")\n";
+    }
+
+    size_t maxEdges = vertices * (vertices - 1) / 2;
+    size_t targetEdges = (maxEdges * percent) / 100;
+    size_t remainingEdges = targetEdges > (vertices - 1) ? targetEdges - (vertices - 1) : 0;
+
+    cout << "\nДобавляем дополнительные ребра...\n";
+    cout << "Всего будет добавлено ребер: " << remainingEdges << "\n";
+
+    for (size_t i = 0; i < vertices && remainingEdges > 0; ++i) {
+        for (size_t j = i + 2; j < vertices && remainingEdges > 0; ++j) {
+            if (graph.getEdgeWeight(i, j) == -1) {
+                graph.addEdge(i, j, weight++);
+                cout << "Добавлено ребро: " << i << " - " << j << " (вес: " << weight - 1 << ")\n";
+                remainingEdges--;
+            }
         }
     }
+
+    cout << "\nГраф успешно создан!\n";
 }
 
 int main() {
@@ -83,7 +115,7 @@ int main() {
         int choice;
         cin >> choice;
 
-        if (choice == 8) break;
+        if (choice == 9) break;
 
         switch (choice) {
                     case 1: {
@@ -120,8 +152,9 @@ int main() {
                 break;
             }
 
+            myVector<int> predecessors;
             clock_t start = clock();
-            distances = dijkstra->shortestPaths(startVertex, Dijkstra::D_HEAP, 2);
+            distances = dijkstra->shortestPathsWithPredecessors(startVertex, Dijkstra::D_HEAP, predecessors, 2);
             double time = (clock() - start) / (double)CLOCKS_PER_SEC;
 
             cout << "Вычислено за " << time * 1000 << " мс" << endl;
@@ -134,8 +167,9 @@ int main() {
                 break;
             }
 
+            myVector<int> predecessors;
             clock_t start = clock();
-            distances = dijkstra->shortestPaths(startVertex, Dijkstra::BINOMIAL_HEAP);  
+            distances = dijkstra->shortestPathsWithPredecessors(startVertex, Dijkstra::BINOMIAL_HEAP, predecessors, 2);
             double time = (clock() - start) / (double)CLOCKS_PER_SEC;
 
             cout << "Вычислено за " << time * 1000 << " мс" << endl;
@@ -160,6 +194,24 @@ int main() {
             }
             else {
                 cout << "Расстояние: " << distances[target] << endl;
+
+                myVector<int> predecessors;
+                dijkstra->shortestPathsWithPredecessors(startVertex, Dijkstra::D_HEAP, predecessors, 2);
+                myVector<int> path = graph.getPath(startVertex, target, predecessors);
+
+                if (path.empty()) {
+                    cout << "Путь не найден!" << endl;
+                }
+                else {
+                    cout << "Путь: ";
+                    for (size_t i = 0; i < path.size(); ++i) {
+                        cout << path[i];
+                        if (i != path.size() - 1) {
+                            cout << " -> ";
+                        }
+                    }
+                    cout << endl;
+                }
             }
             break;
         }
@@ -168,8 +220,30 @@ int main() {
             graph.printGraph();
             break;
 
+        case 8: {  
+            int u, v;
+            cout << "Введите вершину u: ";
+            cin >> u;
+            cout << "Введите вершину v: ";
+            cin >> v;
+
+            try {
+                int weight = graph.getEdgeWeight(u, v);
+                if (weight == -1) {
+                    cout << "Ребро (" << u << ", " << v << ") отсутствует!" << endl;
+                }
+                else {
+                    cout << "Вес ребра (" << u << ", " << v << "): " << weight << endl;
+                }
+            }
+            catch (const std::out_of_range& e) {
+                cout << "Ошибка: " << e.what() << endl;
+            }
+            break;
+        }
+
         default:
-            cout << "Неверный выбор! Пожалуйста, выберите от 1 до 8." << endl;
+            cout << "Неверный выбор! Пожалуйста, выберите от 1 до 9." << endl;
         }
     }
 

@@ -35,13 +35,22 @@ TEST(GraphTest, AddEdgeThrowsForInvalidWeight) {
     EXPECT_THROW(g.addEdge(0, 1, -5), std::invalid_argument);
 }
 
-TEST(GraphTest, AddEdgeDoesNothingForInvalidVertices) {
+TEST(GraphTest, AddEdgeThrowsForInvalidVertices) {
     Graph g(3);
-    g.addEdge(0, 5, 2);  
+
+    EXPECT_THROW(g.addEdge(0, 5, 2), std::out_of_range);
+    EXPECT_THROW(g.addEdge(5, 0, 2), std::out_of_range);
+    EXPECT_THROW(g.addEdge(-1, 1, 2), std::out_of_range);
+
     auto matrix = g.getAdjacencyMatrix();
     for (size_t i = 0; i < 3; ++i) {
         for (size_t j = 0; j < 3; ++j) {
-            if (i != j) EXPECT_EQ(matrix[i][j], -1);
+            if (i != j) {
+                EXPECT_EQ(matrix[i][j], -1);
+            }
+            else {
+                EXPECT_EQ(matrix[i][j], 0);  
+            }
         }
     }
 }
@@ -132,4 +141,38 @@ TEST(GraphTest, MultipleEdgesWorkCorrectly) {
 TEST(GraphTest, NoEdgesGraphIsNotConnected) {
     Graph g(3);
     EXPECT_FALSE(g.isConnected());
+}
+
+TEST(GraphTest, GetExistingEdgeWeight) {
+    Graph graph(3);
+    graph.addEdge(0, 1, 10);
+    graph.addEdge(1, 2, 20);
+
+    EXPECT_EQ(graph.getEdgeWeight(0, 1), 10);
+    EXPECT_EQ(graph.getEdgeWeight(1, 0), 10); 
+    EXPECT_EQ(graph.getEdgeWeight(1, 2), 20);
+}
+
+TEST(GraphTest, GetNonExistentEdgeWeight) {
+    Graph graph(3);
+    graph.addEdge(0, 1, 10);
+
+    EXPECT_EQ(graph.getEdgeWeight(0, 2), -1);
+    EXPECT_EQ(graph.getEdgeWeight(2, 2), 0);  
+}
+
+TEST(GraphTest, GetEdgeWeightInvalidVertex) {
+    Graph graph(3);
+
+    EXPECT_THROW(graph.getEdgeWeight(-1, 0), std::out_of_range);
+    EXPECT_THROW(graph.getEdgeWeight(0, 3), std::out_of_range);
+    EXPECT_THROW(graph.getEdgeWeight(5, 5), std::out_of_range);
+}
+
+TEST(GraphTest, GetEdgeWeightInEmptyGraph) {
+    Graph graph(3);
+
+    EXPECT_EQ(graph.getEdgeWeight(0, 1), -1);
+    EXPECT_EQ(graph.getEdgeWeight(1, 2), -1);
+    EXPECT_EQ(graph.getEdgeWeight(0, 0), 0); 
 }
