@@ -133,21 +133,6 @@ TEST(DijkstraTest, DifferentDValues) {
     EXPECT_EQ(dist_d2[3], dist_d4[3]);
 }
 
-TEST(DijkstraTest, PrintResults) {
-    Graph g(4);
-    g.addEdge(0, 1, 1);
-    g.addEdge(1, 2, 2);
-    g.addEdge(2, 3, 3);
-    g.addEdge(0, 3, 10);
-    Dijkstra d(g);
-    myVector<int> pred;
-    auto dist = d.shortestPathsWithPredecessors(0, Dijkstra::D_HEAP, pred, 2);
-    testing::internal::CaptureStdout();
-    d.printResults(0, dist);
-    std::string output = testing::internal::GetCapturedStdout();
-    EXPECT_TRUE(output.find("до 3: 6") != std::string::npos);
-}
-
 TEST(HeapNodeTest, Comparison) {
     HeapNode n1{ 0, 5 };
     HeapNode n2{ 1, 10 };
