@@ -1,4 +1,5 @@
 #include <iostream>
+#include <random>
 #include <ctime>
 #include "dijkstra.h"
 
@@ -56,48 +57,97 @@ void createCompleteGraph(Graph& graph) {
     size_t vertices;
     int percent;
 
-    while (true) {
-        cout << "Введите количество вершин графа (>= 2): ";
-        cin >> vertices;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> weight_dist(1, 100);
 
+    while (true) {
+        std::cout << "Введите количество вершин графа (>= 2): ";
+        std::cin >> vertices;
         if (vertices >= 2) break;
-        cout << "Ошибка: количество вершин должно быть не менее 2!" << endl;
+        std::cout << "Ошибка: количество вершин должно быть не менее 2!\n";
     }
 
     while (true) {
-        cout << "Введите процент заполненности графа (0-100): ";
-        cin >> percent;
-
+        std::cout << "Введите процент заполненности графа (0-100): ";
+        std::cin >> percent;
         if (percent >= 0 && percent <= 100) break;
-        cout << "Ошибка: процент должен быть в диапазоне от 0 до 100!" << endl;
+        std::cout << "Ошибка: процент должен быть в диапазоне от 0 до 100!\n";
     }
 
     graph = Graph(vertices);
-    int weight = 1;
 
-    for (size_t i = 1; i < vertices; ++i) {
-        graph.addEdge(i - 1, i, weight++);
-        cout << "Добавлено ребро: " << i - 1 << " - " << i << " (вес: " << weight - 1 << ")\n";
+    myVector<size_t> unused_vertices;
+    myVector<size_t> used_vertices;
+
+    std::uniform_int_distribution<size_t> start_dist(0, vertices - 1);
+    size_t first_vertex = start_dist(gen);
+    used_vertices.push_back(first_vertex);
+
+    for (size_t i = 0; i < vertices; ++i) {
+        if (i != first_vertex) {
+            unused_vertices.push_back(i);
+        }
+    }
+
+    for (size_t i = 0; i < unused_vertices.size(); ++i) {
+        std::uniform_int_distribution<size_t> dist(i, unused_vertices.size() - 1);
+        size_t j = dist(gen);
+        size_t temp = unused_vertices[i];
+        unused_vertices[i] = unused_vertices[j];
+        unused_vertices[j] = temp;
+    }
+
+    std::uniform_int_distribution<size_t> used_dist(0, 0);
+    while (!unused_vertices.empty()) {
+        size_t new_vertex = unused_vertices[unused_vertices.size() - 1];
+        unused_vertices.pop_back();
+
+        used_dist = std::uniform_int_distribution<size_t>(0, used_vertices.size() - 1);
+        size_t connect_to = used_vertices[used_dist(gen)];
+
+        int weight = weight_dist(gen);
+        graph.addEdge(new_vertex, connect_to, weight);
+        std::cout << "Добавлено ребро: " << new_vertex << " - "
+            << connect_to << " (вес: " << weight << ")\n";
+
+        used_vertices.push_back(new_vertex);
     }
 
     size_t maxEdges = vertices * (vertices - 1) / 2;
     size_t targetEdges = (maxEdges * percent) / 100;
     size_t remainingEdges = targetEdges > (vertices - 1) ? targetEdges - (vertices - 1) : 0;
 
-    cout << "\nДобавляем дополнительные ребра...\n";
-    cout << "Всего будет добавлено ребер: " << remainingEdges << "\n";
+    std::cout << "\nДобавляем дополнительные ребра...\n";
+    std::cout << "Всего будет добавлено ребер: " << remainingEdges << "\n";
 
-    for (size_t i = 0; i < vertices && remainingEdges > 0; ++i) {
-        for (size_t j = i + 2; j < vertices && remainingEdges > 0; ++j) {
+    myVector<std::pair<size_t, size_t>> possible_edges;
+    for (size_t i = 0; i < vertices; ++i) {
+        for (size_t j = i + 1; j < vertices; ++j) {
             if (graph.getEdgeWeight(i, j) == -1) {
-                graph.addEdge(i, j, weight++);
-                cout << "Добавлено ребро: " << i << " - " << j << " (вес: " << weight - 1 << ")\n";
-                remainingEdges--;
+                possible_edges.push_back(std::pair<size_t, size_t>(i, j));
             }
         }
     }
 
-    cout << "\nГраф успешно создан!\n";
+    for (size_t i = 0; i < possible_edges.size(); ++i) {
+        std::uniform_int_distribution<size_t> dist(i, possible_edges.size() - 1);
+        size_t j = dist(gen);
+        std::pair<size_t, size_t> temp = possible_edges[i];
+        possible_edges[i] = possible_edges[j];
+        possible_edges[j] = temp;
+    }
+
+    for (size_t i = 0; i < remainingEdges && i < possible_edges.size(); ++i) {
+        size_t u = possible_edges[i].first;
+        size_t v = possible_edges[i].second;
+        int weight = weight_dist(gen);
+        graph.addEdge(u, v, weight);
+        std::cout << "Добавлено дополнительное ребро: " << u << " - "
+            << v << " (вес: " << weight << ")\n";
+    }
+
+    std::cout << "\nГраф успешно создан!\n";
 }
 
 int main() {
